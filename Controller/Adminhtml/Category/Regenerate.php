@@ -1,0 +1,38 @@
+<?php
+
+namespace MageSuite\UrlRegeneration\Controller\Adminhtml\Category;
+
+class Regenerate extends \Magento\Backend\App\Action
+{
+    /**
+     * @var \MageSuite\UrlRegeneration\Service\Category\UrlGenerator
+     */
+    protected $categoryUrlGenerator;
+
+    /**
+     * @var \Magento\Catalog\Api\CategoryRepositoryInterface
+     */
+    protected $categoryRepository;
+
+    public function __construct(
+        \Magento\Backend\App\Action\Context $context,
+        \MageSuite\UrlRegeneration\Service\Category\UrlGenerator $categoryUrlGenerator,
+        \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository
+    )
+    {
+        parent::__construct($context);
+        $this->categoryUrlGenerator = $categoryUrlGenerator;
+        $this->categoryRepository = $categoryRepository;
+    }
+
+    public function execute()
+    {
+        $categoryId = $this->_request->getParam('category_id');
+
+        $this->categoryUrlGenerator->regenerate($categoryId, true);
+
+        $this->messageManager->addSuccessMessage(__('URLs were regenerated successfully'));
+
+        return $this->_redirect($this->_redirect->getRefererUrl());
+    }
+}
