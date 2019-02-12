@@ -70,7 +70,7 @@ class CategoryUrlGeneratorCommand
             $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
         }
 
-        $output->writeln("Starting categories URL revrites regeneration ...");
+        $output->writeln("Starting categories URL rewrites regeneration ...");
         $categoryIds = $this->getCategoryIds();
         if (!$categoryIds) {
             $output->writeln("There are no categories to process!");

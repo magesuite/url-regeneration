@@ -61,7 +61,7 @@ class ProductUrlGeneratorCommand
             $this->state->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
         }
 
-        $output->writeln("Starting products URL revrites regeneration ...");
+        $output->writeln("Starting products URL rewrites regeneration ...");
 
         /** @var \Creativestyle\UrlRegeneration\Service\Product\UrlGenerator $urlGenerator */
         $urlGenerator = $this->urlGeneratorFactory->create();
