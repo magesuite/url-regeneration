@@ -10,6 +10,8 @@ class ProductUrlGeneratorCommand
     extends \Symfony\Component\Console\Command\Command
 {
 
+    const PRODUCT_IDS_OPTION = 'product_ids';
+
     /**
      * @var \Magento\Framework\App\State
      */
@@ -43,7 +45,14 @@ class ProductUrlGeneratorCommand
     protected function configure()
     {
         $this->setName("catalog:product:url-regeneration");
-        $this->setDescription("Regenerates URL rewrites for all products.");
+        $this->setDescription("Regenerates URL rewrites for all products. If you need to regenerate one or more you can pass -p parameter. For example -p 1,2,3");
+        $this->setDefinition([
+            new \Symfony\Component\Console\Input\InputOption(
+                self::PRODUCT_IDS_OPTION, "-p",
+                \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Regenerate URL rewrites for product ids array"
+            )
+        ]);
         parent::configure();
     }
 
@@ -65,9 +74,23 @@ class ProductUrlGeneratorCommand
 
         /** @var \Creativestyle\UrlRegeneration\Service\Product\UrlGenerator $urlGenerator */
         $urlGenerator = $this->urlGeneratorFactory->create();
-        $urlGenerator->regenerate();
+        $urlGenerator->regenerate($this->prepareProductIds($input));
 
         $output->writeln("Finish.");
+    }
+
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return array
+     */
+    protected function prepareProductIds(\Symfony\Component\Console\Input\InputInterface $input)
+    {
+        $productIdsOption = $input->getOption(self::PRODUCT_IDS_OPTION);
+        if (!$productIdsOption) {
+            return [];
+        }
+
+        return explode(",", $productIdsOption);
     }
 
 }

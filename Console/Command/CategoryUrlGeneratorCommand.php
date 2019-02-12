@@ -10,6 +10,9 @@ class CategoryUrlGeneratorCommand
     extends \Symfony\Component\Console\Command\Command
 {
 
+    const CATEGORY_ID_OPTION = 'category_id';
+    const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
+
     /**
      * @var \Magento\Framework\App\State
      */
@@ -51,7 +54,19 @@ class CategoryUrlGeneratorCommand
     protected function configure()
     {
         $this->setName("catalog:category:url-regeneration");
-        $this->setDescription("Regenerates URL rewrites for all categories.");
+        $this->setDescription("Regenerates URL rewrites for all categories, to use it for specific categry use -c paremeter to regenerate category with subcategories use category id and parameter -w 1. Exmaple -c 1 -w 1");
+        $this->setDefinition([
+            new \Symfony\Component\Console\Input\InputOption(
+                self::CATEGORY_ID_OPTION, "-c",
+                \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Regenerate URL rewrites for category ID"
+            ),
+            new \Symfony\Component\Console\Input\InputOption(
+                self::WITH_SUBCATEGORIES_OPTION, "-w",
+                \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Use category subcategories"
+            )
+        ]);
         parent::configure();
     }
 
@@ -71,23 +86,47 @@ class CategoryUrlGeneratorCommand
         }
 
         $output->writeln("Starting categories URL rewrites regeneration ...");
+
+        /** @var \Creativestyle\UrlRegeneration\Service\Category\UrlGenerator $urlGenerator */
+        $urlGenerator = $this->urlGeneratorFactory->create();
+        /** @var int $categoryId */
+        $categoryId = $input->getOption(self::CATEGORY_ID_OPTION);
+        /** @var array $categoryIds */
         $categoryIds = $this->getCategoryIds();
-        if (!$categoryIds) {
-            $output->writeln("There are no categories to process!");
+        /** @var bool $withSubcategories */
+        $withSubcategories = false;
+
+        if ($categoryId && $this->validateCategoryId($categoryId, $categoryIds)) {
+            $categoryIds = [];
+            $categoryIds[] = $categoryId;
+            $withSubcategories = $this->prapreWithSubcategories($input);
+        } else if ($categoryId && !$this->validateCategoryId($categoryId, $categoryIds)) {
+            $output->writeln(sprintf("Category with ID %s does not exists.", $categoryId));
             $output->writeln("Finish.");
 
             return false;
         }
 
-        /** @var \Creativestyle\UrlRegeneration\Service\Category\UrlGenerator $urlGenerator */
-        $urlGenerator = $this->urlGeneratorFactory->create();
-
         foreach ($categoryIds as $categoryId) {
-            $output->writeln(sprintf("Processing URL rewrite for ctegory %s", $categoryId));
-            $urlGenerator->regenerate($categoryId);
+            $output->writeln(sprintf("Processing URL rewrite for category %s", $categoryId));
+            $urlGenerator->regenerate($categoryId, $withSubcategories);
         }
 
         $output->writeln("Finish.");
+
+        return true;
+    }
+
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @return bool
+     */
+    protected function prapreWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input)
+    {
+        $withSubcategoriesOption = $input->getOption(self::WITH_SUBCATEGORIES_OPTION);
+        if (!$withSubcategoriesOption) {
+            return false;
+        }
 
         return true;
     }
@@ -97,6 +136,7 @@ class CategoryUrlGeneratorCommand
      */
     protected function getCategoryIds()
     {
+        /** @var array $result */
         $result = [];
         /** @var \Magento\Catalog\Model\ResourceModel\Category\Collection $categoryCollection */
         $categoryCollection = $this->categoryCollectionFactory->create();
@@ -106,6 +146,16 @@ class CategoryUrlGeneratorCommand
         }
 
         return $result;
+    }
+
+    /**
+     * @param int $categoryId
+     * @param array $categoryIds
+     * @return bool
+     */
+    protected function validateCategoryId(int $categoryId, array $categoryIds)
+    {
+        return in_array($categoryId, $categoryIds);
     }
 
 }
