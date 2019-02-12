@@ -54,7 +54,7 @@ class CategoryUrlGeneratorCommand
     protected function configure()
     {
         $this->setName("catalog:category:url-regeneration");
-        $this->setDescription("Regenerates URL rewrites for all categories, to use it for specific categry use -c paremeter to regenerate category with subcategories use category id and parameter -w 1. Exmaple -c 1 -w 1");
+        $this->setDescription("Regenerates URL rewrites for all categories, to use it for specific category use -c parameter. To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1");
         $this->setDefinition([
             new \Symfony\Component\Console\Input\InputOption(
                 self::CATEGORY_ID_OPTION, "-c",
