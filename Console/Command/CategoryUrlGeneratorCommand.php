@@ -4,7 +4,7 @@ namespace MageSuite\UrlRegeneration\Console\Command;
 
 /**
  * Class CategoryUrlGeneratorCommand
- * @package Creativestyle\UrlRegeneration\Console\Command
+ * @package MageSuite\UrlRegeneration\Console\Command
  */
 class CategoryUrlGeneratorCommand
     extends \Symfony\Component\Console\Command\Command
@@ -24,7 +24,7 @@ class CategoryUrlGeneratorCommand
     protected $categoryCollectionFactory;
 
     /**
-     * @var \Creativestyle\UrlRegeneration\Service\Category\UrlGeneratorFactory
+     * @var \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory
      */
     protected $urlGeneratorFactory;
 
@@ -32,13 +32,13 @@ class CategoryUrlGeneratorCommand
      * CategoryUrlGeneratorCommand constructor.
      * @param \Magento\Framework\App\State $state
      * @param \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
-     * @param \Creativestyle\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory
+     * @param \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory
      * @param null $name
      */
     public function __construct(
         \Magento\Framework\App\State $state,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
-        \Creativestyle\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory,
+        \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory,
         $name = null
     )
     {
@@ -87,7 +87,7 @@ class CategoryUrlGeneratorCommand
 
         $output->writeln("Starting categories URL rewrites regeneration ...");
 
-        /** @var \Creativestyle\UrlRegeneration\Service\Category\UrlGenerator $urlGenerator */
+        /** @var \MageSuite\UrlRegeneration\Service\Category\UrlGenerator $urlGenerator */
         $urlGenerator = $this->urlGeneratorFactory->create();
         /** @var int $categoryId */
         $categoryId = $input->getOption(self::CATEGORY_ID_OPTION);

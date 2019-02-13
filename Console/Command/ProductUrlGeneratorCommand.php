@@ -4,7 +4,7 @@ namespace MageSuite\UrlRegeneration\Console\Command;
 
 /**
  * Class ProductUrlGeneratorCommand
- * @package Creativestyle\UrlRegeneration\Console\Command
+ * @package MageSuite\UrlRegeneration\Console\Command
  */
 class ProductUrlGeneratorCommand
     extends \Symfony\Component\Console\Command\Command
@@ -18,19 +18,19 @@ class ProductUrlGeneratorCommand
     protected $state;
 
     /**
-     * @var \Creativestyle\UrlRegeneration\Service\Product\UrlGeneratorFactory
+     * @var \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory
      */
     protected $urlGeneratorFactory;
 
     /**
      * ProductUrlGeneratorCommand constructor.
      * @param \Magento\Framework\App\State $state
-     * @param \Creativestyle\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory
+     * @param \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory
      * @param null $name
      */
     public function __construct(
         \Magento\Framework\App\State $state,
-        \Creativestyle\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
+        \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
         $name = null
     )
     {
@@ -72,7 +72,7 @@ class ProductUrlGeneratorCommand
 
         $output->writeln("Starting products URL rewrites regeneration ...");
 
-        /** @var \Creativestyle\UrlRegeneration\Service\Product\UrlGenerator $urlGenerator */
+        /** @var \MageSuite\UrlRegeneration\Service\Product\UrlGenerator $urlGenerator */
         $urlGenerator = $this->urlGeneratorFactory->create();
         $urlGenerator->regenerate($this->prepareProductIds($input));
 
