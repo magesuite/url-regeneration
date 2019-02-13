@@ -1,6 +1,6 @@
 <?php
 
-namespace Creativestyle\UrlRegeneration\Console\Command;
+namespace MageSuite\UrlRegeneration\Console\Command;
 
 /**
  * Class CategoryUrlGeneratorCommand

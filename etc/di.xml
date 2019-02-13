@@ -4,8 +4,8 @@
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="CategoryUrlGeneratorCommand" xsi:type="object">Creativestyle\UrlRegeneration\Console\Command\CategoryUrlGeneratorCommand</item>
-                <item name="ProductUrlGeneratorCommand" xsi:type="object">Creativestyle\UrlRegeneration\Console\Command\ProductUrlGeneratorCommand</item>
+                <item name="CategoryUrlGeneratorCommand" xsi:type="object">MageSuite\UrlRegeneration\Console\Command\CategoryUrlGeneratorCommand</item>
+                <item name="ProductUrlGeneratorCommand" xsi:type="object">MageSuite\UrlRegeneration\Console\Command\ProductUrlGeneratorCommand</item>
             </argument>
         </arguments>
     </type>
