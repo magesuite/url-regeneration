@@ -39,6 +39,7 @@ class UrlRegeneratorTest  extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @magentoAppIsolation enabled
      * @magentoDbIsolation enabled
      * @magentoDataFixture Magento/Catalog/_files/products_for_search.php
      */
