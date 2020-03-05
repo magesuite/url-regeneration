@@ -24,16 +24,23 @@ class UrlGenerator
      */
     protected $storeManager;
 
+    /**
+     * @var \Magento\Framework\App\ResourceConnection
+     */
+    protected $resourceModel;
+
     public function __construct(
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory,
         \Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator $productUrlRewriteGenerator,
         \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\ResourceConnection $resourceModel
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->productUrlRewriteGenerator = $productUrlRewriteGenerator;
         $this->urlPersist = $urlPersist;
         $this->storeManager = $storeManager;
+        $this->resourceModel = $resourceModel;
     }
 
     public function regenerate($productIds = []) {
@@ -42,6 +49,43 @@ class UrlGenerator
         foreach ($stores as $store) {
             $this->regenerateStoreUrls($store, $productIds);
         }
+    }
+
+    public function regenerateMissing() {
+        $stores = $this->storeManager->getStores(false);
+
+        foreach ($stores as $store) {
+            $productIds = $this->getMissingProductsIds($store);
+            $this->regenerateStoreUrls($store, $productIds);
+        }
+    }
+
+    /**
+     * @param \Magento\Store\Model\Store $store
+     * @return array $productIds
+     */
+    public function getMissingProductsIds($store) {
+        $productTable = $this->resourceModel->getTableName('catalog_product_entity');
+        $urlRewriteTable = $this->resourceModel->getTableName('url_rewrite');
+        $productRelationTable = $this->resourceModel->getTableName('catalog_product_relation');
+
+        $connection = $this->resourceModel->getConnection();
+        $joinUrlRewriteCondition = $connection->quoteInto(
+            "p.entity_id = u.entity_id AND u.entity_type = 'product' AND u.`store_id` = ?",
+            (int)$store->getId()
+        );
+
+        $dbSelect = $connection
+            ->select()
+            ->distinct()
+            ->from(['p' => $productTable], 'entity_id')
+            ->joinLeft(['u' => $urlRewriteTable], $joinUrlRewriteCondition)
+            ->joinLeft(['r' => $productRelationTable], "p.entity_id = r.child_id")
+            ->where('u.`url_rewrite_id` IS NULL AND r.`parent_id` IS NULL');
+
+        $productIds = $this->resourceModel->getConnection()->fetchCol($dbSelect);
+
+        return $productIds;
     }
 
     /**
