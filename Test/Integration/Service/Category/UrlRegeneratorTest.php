@@ -24,7 +24,7 @@ class UrlRegeneratorTest  extends \PHPUnit\Framework\TestCase
      */
     protected $urlPersister;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->objectManager = \Magento\TestFramework\ObjectManager::getInstance();
         $this->urlRegenerator = $this->objectManager->create(\MageSuite\UrlRegeneration\Service\Category\UrlGenerator::class);
