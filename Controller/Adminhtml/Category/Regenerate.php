@@ -34,6 +34,6 @@ class Regenerate extends \Magento\Backend\App\Action
 
         $this->messageManager->addSuccessMessage(__('URLs were regenerated successfully'));
 
-        return $this->_redirect($this->_redirect->getRefererUrl());
+        return $this->_redirect('catalog/category/edit', ['id' => $categoryId]);
     }
 }
