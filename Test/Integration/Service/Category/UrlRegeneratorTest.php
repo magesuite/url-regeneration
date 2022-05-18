@@ -2,7 +2,7 @@
 
 namespace MageSuite\UrlRegeneration\Test\Integration\Service\Category;
 
-class UrlRegeneratorTest  extends \PHPUnit\Framework\TestCase
+class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \MageSuite\UrlRegeneration\Service\Category\UrlGenerator

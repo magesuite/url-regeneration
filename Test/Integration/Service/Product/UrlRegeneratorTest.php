@@ -2,7 +2,7 @@
 
 namespace MageSuite\UrlRegeneration\Test\Integration\Service\Product;
 
-class UrlRegeneratorTest  extends \PHPUnit\Framework\TestCase
+class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \MageSuite\UrlRegeneration\Service\Product\UrlGenerator
@@ -59,6 +59,29 @@ class UrlRegeneratorTest  extends \PHPUnit\Framework\TestCase
 
         $this->assertNotNull($result);
         $this->assertEquals('search-product-1.html', $result->getRequestPath());
+    }
+
+    /**
+     * @magentoAppIsolation enabled
+     * @magentoDbIsolation enabled
+     * @magentoDataFixture Magento/Catalog/_files/multiple_mixed_products.php
+     */
+    public function testItRegeneratesUrlsOnlyForVisibleProducts()
+    {
+        $notVisibleProductSku = 'simple_41';
+        $product = $this->productRepository->get($notVisibleProductSku);
+
+        $this->deleteAllUrls($product);
+
+        $result = $this->findProductUrl($product);
+
+        $this->assertNull($result);
+
+        $this->urlRegenerator->regenerate([$product->getId()]);
+
+        $result = $this->findProductUrl($product);
+
+        $this->assertNull($result);
     }
 
     /**

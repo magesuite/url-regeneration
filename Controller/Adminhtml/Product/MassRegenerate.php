@@ -13,8 +13,7 @@ class MassRegenerate extends \Magento\Backend\App\Action
         \Magento\Backend\App\Action\Context $context,
         \MageSuite\UrlRegeneration\Service\Product\UrlGenerator $productUrlGenerator,
         \Magento\Framework\Message\ManagerInterface $messageManager
-    )
-    {
+    ) {
         parent::__construct($context);
 
         $this->productUrlGenerator = $productUrlGenerator;
