@@ -26,8 +26,7 @@ class MissingProductUrlGeneratorCommand extends \Symfony\Component\Console\Comma
         \Magento\Framework\App\State $state,
         \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
         $name = null
-    )
-    {
+    ) {
         $this->state = $state;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
         parent::__construct($name);
@@ -49,8 +48,7 @@ class MissingProductUrlGeneratorCommand extends \Symfony\Component\Console\Comma
     protected function execute(
         \Symfony\Component\Console\Input\InputInterface $input,
         \Symfony\Component\Console\Output\OutputInterface $output
-    )
-    {
+    ) {
         try {
             $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -65,5 +63,4 @@ class MissingProductUrlGeneratorCommand extends \Symfony\Component\Console\Comma
 
         $output->writeln("Finish.");
     }
-
 }

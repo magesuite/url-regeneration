@@ -6,8 +6,7 @@ namespace MageSuite\UrlRegeneration\Console\Command;
  * Class ProductUrlGeneratorCommand
  * @package MageSuite\UrlRegeneration\Console\Command
  */
-class ProductUrlGeneratorCommand
-    extends \Symfony\Component\Console\Command\Command
+class ProductUrlGeneratorCommand extends \Symfony\Component\Console\Command\Command
 {
 
     const PRODUCT_IDS_OPTION = 'product_ids';
@@ -32,8 +31,7 @@ class ProductUrlGeneratorCommand
         \Magento\Framework\App\State $state,
         \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
         $name = null
-    )
-    {
+    ) {
         $this->state = $state;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
         parent::__construct($name);
@@ -48,7 +46,8 @@ class ProductUrlGeneratorCommand
         $this->setDescription("Regenerates URL rewrites for all products. If you need to regenerate one or more you can pass -p parameter. For example -p 1,2,3");
         $this->setDefinition([
             new \Symfony\Component\Console\Input\InputOption(
-                self::PRODUCT_IDS_OPTION, "-p",
+                self::PRODUCT_IDS_OPTION,
+                "-p",
                 \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
                 "Regenerate URL rewrites for product ids array"
             )
@@ -62,8 +61,7 @@ class ProductUrlGeneratorCommand
     protected function execute(
         \Symfony\Component\Console\Input\InputInterface $input,
         \Symfony\Component\Console\Output\OutputInterface $output
-    )
-    {
+    ) {
         try {
             $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -92,5 +90,4 @@ class ProductUrlGeneratorCommand
 
         return explode(",", $productIdsOption);
     }
-
 }

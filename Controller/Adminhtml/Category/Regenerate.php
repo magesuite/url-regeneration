@@ -18,8 +18,7 @@ class Regenerate extends \Magento\Backend\App\Action
         \Magento\Backend\App\Action\Context $context,
         \MageSuite\UrlRegeneration\Service\Category\UrlGenerator $categoryUrlGenerator,
         \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository
-    )
-    {
+    ) {
         parent::__construct($context);
         $this->categoryUrlGenerator = $categoryUrlGenerator;
         $this->categoryRepository = $categoryRepository;

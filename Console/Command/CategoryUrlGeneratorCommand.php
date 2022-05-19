@@ -6,8 +6,7 @@ namespace MageSuite\UrlRegeneration\Console\Command;
  * Class CategoryUrlGeneratorCommand
  * @package MageSuite\UrlRegeneration\Console\Command
  */
-class CategoryUrlGeneratorCommand
-    extends \Symfony\Component\Console\Command\Command
+class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Command
 {
 
     const CATEGORY_ID_OPTION = 'category_id';
@@ -40,8 +39,7 @@ class CategoryUrlGeneratorCommand
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
         \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory,
         $name = null
-    )
-    {
+    ) {
         $this->state = $state;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
@@ -54,15 +52,20 @@ class CategoryUrlGeneratorCommand
     protected function configure()
     {
         $this->setName("catalog:category:url-regeneration");
-        $this->setDescription("Regenerates URL rewrites for all categories, to use it for specific category use -c parameter. To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1");
+        $this->setDescription(
+            "Regenerates URL rewrites for all categories, to use it for specific category use -c parameter.
+            To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1"
+        );
         $this->setDefinition([
             new \Symfony\Component\Console\Input\InputOption(
-                self::CATEGORY_ID_OPTION, "-c",
+                self::CATEGORY_ID_OPTION,
+                "-c",
                 \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
                 "Regenerate URL rewrites for category ID"
             ),
             new \Symfony\Component\Console\Input\InputOption(
-                self::WITH_SUBCATEGORIES_OPTION, "-w",
+                self::WITH_SUBCATEGORIES_OPTION,
+                "-w",
                 \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
                 "Use category subcategories"
             )
@@ -100,7 +103,7 @@ class CategoryUrlGeneratorCommand
             $categoryIds = [];
             $categoryIds[] = $categoryId;
             $withSubcategories = $this->prapreWithSubcategories($input);
-        } else if ($categoryId && !$this->validateCategoryId($categoryId, $categoryIds)) {
+        } elseif ($categoryId && !$this->validateCategoryId($categoryId, $categoryIds)) {
             $output->writeln(sprintf("Category with ID %s does not exists.", $categoryId));
             $output->writeln("Finish.");
 
@@ -157,5 +160,4 @@ class CategoryUrlGeneratorCommand
     {
         return in_array($categoryId, $categoryIds);
     }
-
 }

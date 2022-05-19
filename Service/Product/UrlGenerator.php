@@ -43,7 +43,8 @@ class UrlGenerator
         $this->resourceModel = $resourceModel;
     }
 
-    public function regenerate($productIds = []) {
+    public function regenerate($productIds = [])
+    {
         $stores = $this->storeManager->getStores(false);
 
         foreach ($stores as $store) {
@@ -51,7 +52,8 @@ class UrlGenerator
         }
     }
 
-    public function regenerateMissing() {
+    public function regenerateMissing()
+    {
         $stores = $this->storeManager->getStores(false);
 
         foreach ($stores as $store) {
@@ -64,7 +66,8 @@ class UrlGenerator
      * @param \Magento\Store\Model\Store $store
      * @return array $productIds
      */
-    public function getMissingProductsIds($store) {
+    public function getMissingProductsIds($store)
+    {
         $productTable = $this->resourceModel->getTableName('catalog_product_entity');
         $urlRewriteTable = $this->resourceModel->getTableName('url_rewrite');
         $productRelationTable = $this->resourceModel->getTableName('catalog_product_relation');
@@ -83,9 +86,7 @@ class UrlGenerator
             ->joinLeft(['r' => $productRelationTable], "p.entity_id = r.child_id")
             ->where('u.`url_rewrite_id` IS NULL AND r.`parent_id` IS NULL');
 
-        $productIds = $this->resourceModel->getConnection()->fetchCol($dbSelect);
-
-        return $productIds;
+        return $this->resourceModel->getConnection()->fetchCol($dbSelect);
     }
 
     /**
@@ -105,7 +106,9 @@ class UrlGenerator
             $collection->addIdFilter($productIds);
         }
 
-        $collection->addAttributeToSelect(['url_path', 'url_key']);
+        $collection
+            ->addAttributeToFilter('visibility', ['neq' => \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE])
+            ->addAttributeToSelect(['url_path', 'url_key']);
 
         $products = $collection->load();
 
@@ -122,7 +125,7 @@ class UrlGenerator
 
             try {
                 $this->urlPersist->replace($newUrls);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {} //phpcs:ignore
         }
     }
 }

@@ -36,7 +36,8 @@ class UrlGenerator
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function regenerate($categoryId, $withSubcategories = false) {
+    public function regenerate($categoryId, $withSubcategories = false)
+    {
         $stores = $this->storeManager->getStores(false);
 
         foreach ($stores as $store) {
@@ -52,7 +53,7 @@ class UrlGenerator
     {
         $category = $this->getCategoryByStore($categoryId, $store);
 
-        if(!$this->isCategoryInStore($category, $store)) {
+        if (!$this->isCategoryInStore($category, $store)) {
             return;
         }
 
@@ -62,11 +63,11 @@ class UrlGenerator
             \Magento\UrlRewrite\Service\V1\Data\UrlRewrite::STORE_ID => $store->getId()
         ]);
 
-        if(!$withSubcategories or !$category->getChildrenCategories()) {
+        if (!$withSubcategories || !$category->getChildrenCategories()) {
             return;
         }
 
-        foreach($category->getChildrenCategories() as $childCategory) {
+        foreach ($category->getChildrenCategories() as $childCategory) {
             $this->deleteOldUrls($store, $childCategory->getId(), true);
         }
     }
@@ -79,7 +80,7 @@ class UrlGenerator
     {
         $category = $this->getCategoryByStore($categoryId, $store);
 
-        if(!$this->isCategoryInStore($category, $store)) {
+        if (!$this->isCategoryInStore($category, $store)) {
             return;
         }
 
@@ -87,13 +88,13 @@ class UrlGenerator
 
         try {
             $this->urlPersist->replace($newUrls);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {} //phpcs:ignore
 
-        if(!$withSubcategories or !$category->getChildrenCategories()) {
+        if (!$withSubcategories || !$category->getChildrenCategories()) {
             return;
         }
 
-        foreach($category->getChildrenCategories() as $childCategory) {
+        foreach ($category->getChildrenCategories() as $childCategory) {
             $this->regenerateStoreUrls($store, $childCategory->getId(), true);
         }
     }
@@ -115,7 +116,8 @@ class UrlGenerator
         return $category;
     }
 
-    protected function isCategoryInStore($category, $store) {
+    protected function isCategoryInStore($category, $store)
+    {
         return in_array($store->getRootCategoryId(), $category->getPathIds());
     }
 }
