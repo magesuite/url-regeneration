@@ -95,7 +95,7 @@ class UrlGenerator
         }
 
         foreach ($category->getChildrenCategories() as $childCategory) {
-            $this->regenerateStoreUrls($store, $childCategory->getId(), true);
+            $this->regenerateStoreUrls($store, (int)$childCategory->getId(), true);
         }
     }
 
