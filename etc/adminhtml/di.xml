@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator">
+        <plugin name="remove_rewrites_with_empty_request_path" type="MageSuite\UrlRegeneration\Plugin\Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator\RemoveRewritesWithEmptyRequestPath" sortOrder="500"/>
+    </type>
+</config>
