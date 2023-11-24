@@ -112,7 +112,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 
         foreach ($categoryIds as $categoryId) {
             $output->writeln(sprintf("Processing URL rewrite for category %s", $categoryId));
-            $urlGenerator->regenerate($categoryId, $withSubcategories);
+            $urlGenerator->regenerate((int)$categoryId, $withSubcategories);
         }
 
         $output->writeln("Finish.");
