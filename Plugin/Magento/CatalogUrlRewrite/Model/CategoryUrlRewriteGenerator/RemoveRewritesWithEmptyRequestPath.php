@@ -12,7 +12,7 @@ class RemoveRewritesWithEmptyRequestPath
     protected \MageSuite\UrlRegeneration\Service\Category\RemoveRewritesWithEmptyRequestPath $removeRewritesWithEmptyRequestPath;
 
     public function __construct(
-        \MageSuite\UrlRegeneration\Service\Category\RemoveRewritesWithEmptyRequestPath $removeRewritesWithEmptyRequestPath,
+        \MageSuite\UrlRegeneration\Service\Category\RemoveRewritesWithEmptyRequestPath $removeRewritesWithEmptyRequestPath
     ) {
         $this->removeRewritesWithEmptyRequestPath = $removeRewritesWithEmptyRequestPath;
     }
