@@ -17,7 +17,7 @@ class UrlGenerator
         \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
         \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Psr\Log\LoggerInterface $logger,
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->urlPersist = $urlPersist;
         $this->storeManager = $storeManager;
