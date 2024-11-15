@@ -34,9 +34,25 @@ class UrlGenerator
         $stores = $this->storeManager->getStores();
 
         foreach ($stores as $store) {
-            $this->deleteOldUrls($store, $categoryId, $withSubcategories);
-            $this->regenerateStoreUrls($store, $categoryId, $withSubcategories);
+            $this->regenerateSingleStore($store, $categoryId, $withSubcategories);
         }
+    }
+
+    /**
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function regenerateStore($categoryId, $withSubcategories = false): void
+    {
+        $this->regenerateSingleStore($this->storeManager->getStore(), $categoryId, $withSubcategories);
+    }
+
+    /**
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function regenerateSingleStore($store, $categoryId, $withSubcategories = false): void
+    {
+        $this->deleteOldUrls($store, $categoryId, $withSubcategories);
+        $this->regenerateStoreUrls($store, $categoryId, $withSubcategories);
     }
 
     /**

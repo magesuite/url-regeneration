@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace MageSuite\UrlRegeneration\Block\Adminhtml\Category\Edit;
 
 class RegenerateUrl extends \Magento\Catalog\Block\Adminhtml\Category\AbstractCategory implements \Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface
 {
-    public function getButtonData()
+    public function getButtonData(): array
     {
         return [
             'label' => __('Regenerate URLs'),
@@ -15,7 +16,7 @@ class RegenerateUrl extends \Magento\Catalog\Block\Adminhtml\Category\AbstractCa
         ];
     }
 
-    protected function getOptions()
+    protected function getOptions(): array
     {
         $categoryId = $this->getCategoryId();
 
@@ -31,17 +32,37 @@ class RegenerateUrl extends \Magento\Catalog\Block\Adminhtml\Category\AbstractCa
             'default' => false,
         ];
 
+        $splitButtonOptions[] = [
+            'label' => __('This category for current store'),
+            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, false, true)),
+            'default' => false,
+        ];
+
+        $splitButtonOptions[] = [
+            'label' => __('This category and subcategories for current store'),
+            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, true, true)),
+            'default' => false,
+        ];
+
         return $splitButtonOptions;
     }
 
-    /**
-     * @param $categoryId
-     * @return string
-     */
-    protected function getActionUrl($categoryId, $withSubcategories = false)
+    protected function getActionUrl($categoryId, $withSubcategories = false, $singleStore = false): string
     {
         return $this->getUrl(
             'urlregeneration/category/regenerate',
+            [
+                'category_id' => $categoryId,
+                'with_subcategories' => $withSubcategories,
+                'single_store' => $singleStore
+            ]
+        );
+    }
+
+    protected function getSingleStoreActionUrl($categoryId, $withSubcategories = false): string
+    {
+        return $this->getUrl(
+            'urlregeneration/category/regenerateSingleStore',
             [
                 'category_id' => $categoryId,
                 'with_subcategories' => $withSubcategories
