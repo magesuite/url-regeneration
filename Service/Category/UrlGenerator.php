@@ -11,48 +11,47 @@ class UrlGenerator
     protected \Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator $categoryUrlRewriteGenerator;
     protected \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository;
     protected \Psr\Log\LoggerInterface $logger;
+    protected \Magento\Framework\App\RequestInterface $request;
 
     public function __construct(
         \Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator $categoryUrlRewriteGenerator,
         \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
         \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Psr\Log\LoggerInterface $logger
+        \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\App\RequestInterface $request
     ) {
         $this->urlPersist = $urlPersist;
         $this->storeManager = $storeManager;
         $this->categoryUrlRewriteGenerator = $categoryUrlRewriteGenerator;
         $this->categoryRepository = $categoryRepository;
         $this->logger = $logger;
+        $this->request = $request;
     }
 
     /**
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function regenerate(int $categoryId, bool $withSubcategories = false): void
+    public function regenerate(int $categoryId, bool $withSubcategories = false, ?array $storeIds = null): void
     {
-        $stores = $this->storeManager->getStores();
+        $stores = $this->getStores($storeIds);
 
         foreach ($stores as $store) {
-            $this->regenerateSingleStore($store, $categoryId, $withSubcategories);
+            $this->deleteOldUrls($store, $categoryId, $withSubcategories);
+            $this->regenerateStoreUrls($store, $categoryId, $withSubcategories);
         }
     }
 
-    /**
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function regenerateStore($categoryId, $withSubcategories = false): void
+    public function getStores(?array $storeIds = null): array
     {
-        $this->regenerateSingleStore($this->storeManager->getStore(), $categoryId, $withSubcategories);
-    }
+        $stores = $this->storeManager->getStores();
 
-    /**
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function regenerateSingleStore($store, $categoryId, $withSubcategories = false): void
-    {
-        $this->deleteOldUrls($store, $categoryId, $withSubcategories);
-        $this->regenerateStoreUrls($store, $categoryId, $withSubcategories);
+        if ($storeIds !== null) {
+            $stores = array_intersect_key($stores, array_flip($storeIds));
+        }
+
+        return $stores;
     }
 
     /**

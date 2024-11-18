@@ -20,53 +20,54 @@ class RegenerateUrl extends \Magento\Catalog\Block\Adminhtml\Category\AbstractCa
     {
         $categoryId = $this->getCategoryId();
 
-        $splitButtonOptions[] = [
-            'label' => __('Only this category'),
-            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, false)),
-            'default' => true,
+        $splitButtonOptions = [
+            [
+                'label' => __('Only this category'),
+                'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, false)),
+                'default' => true,
+            ],
+            [
+                'label' => __('This category and subcategories'),
+                'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, true)),
+                'default' => false,
+            ],
         ];
 
-        $splitButtonOptions[] = [
-            'label' => __('This category and subcategories'),
-            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, true)),
-            'default' => false,
-        ];
-
-        $splitButtonOptions[] = [
-            'label' => __('This category for current store'),
-            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, false, true)),
-            'default' => false,
-        ];
-
-        $splitButtonOptions[] = [
-            'label' => __('This category and subcategories for current store'),
-            'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, true, true)),
-            'default' => false,
-        ];
+        if ($storeId = $this->getStoreId()) {
+            $splitButtonOptions[] = [
+                'label' => __('This category for current store'),
+                'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, false, $storeId)),
+                'default' => false,
+            ];
+            $splitButtonOptions[] = [
+                'label' => __('This category and subcategories for current store'),
+                'onclick' => sprintf("setLocation('%s')", $this->getActionUrl($categoryId, true, $storeId)),
+                'default' => false,
+            ];
+        }
 
         return $splitButtonOptions;
     }
 
-    protected function getActionUrl($categoryId, $withSubcategories = false, $singleStore = false): string
+    protected function getStoreId(): ?int
     {
-        return $this->getUrl(
-            'urlregeneration/category/regenerate',
-            [
-                'category_id' => $categoryId,
-                'with_subcategories' => $withSubcategories,
-                'single_store' => $singleStore
-            ]
-        );
+        return (int)$this->getRequest()->getParam('store') ?? null;
     }
 
-    protected function getSingleStoreActionUrl($categoryId, $withSubcategories = false): string
+    protected function getActionUrl($categoryId, $withSubcategories = false, ?int $storeId = null): string
     {
+        $params = [
+            'category_id' => $categoryId,
+            'with_subcategories' => $withSubcategories,
+        ];
+
+        if ($storeId !== null) {
+            $params['store_id'] = $storeId;
+        }
+
         return $this->getUrl(
-            'urlregeneration/category/regenerateSingleStore',
-            [
-                'category_id' => $categoryId,
-                'with_subcategories' => $withSubcategories
-            ]
+            'urlregeneration/category/regenerate',
+            $params
         );
     }
 }

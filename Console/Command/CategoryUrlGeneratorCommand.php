@@ -6,6 +6,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 {
     public const CATEGORY_ID_OPTION = 'category_id';
     public const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
+    public const STORE_IDS = 'store_ids';
 
     protected \Magento\Framework\App\State $state;
     protected \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory;
@@ -43,6 +44,12 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
                 "-w",
                 \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
                 "Use category subcategories"
+            ),
+            new \Symfony\Component\Console\Input\InputOption(
+                self::STORE_IDS,
+                "-s",
+                \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Regenerate URL rewrites for specific store IDs. Example -s 1,2,3"
             )
         ]);
 
@@ -79,14 +86,27 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
             return \Symfony\Component\Console\Command\Command::FAILURE;
         }
 
+        $storeIds = $this->getStoreIds($input);
+
         foreach ($categoryIds as $categoryId) {
             $output->writeln(sprintf("Processing URL rewrite for category %s", $categoryId));
-            $urlGenerator->regenerate((int)$categoryId, $withSubcategories);
+            $urlGenerator->regenerate((int)$categoryId, $withSubcategories, $storeIds);
         }
 
         $output->writeln("Finish.");
 
         return \Symfony\Component\Console\Command\Command::SUCCESS;
+    }
+
+    protected function getStoreIds(\Symfony\Component\Console\Input\InputInterface $input)
+    {
+        $storeIds = $input->getOption(self::STORE_IDS);
+
+        if (!$storeIds) {
+            return null;
+        }
+
+        return explode(',', $storeIds);
     }
 
     protected function isWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input): bool
