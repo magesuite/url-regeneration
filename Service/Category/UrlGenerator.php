@@ -11,22 +11,19 @@ class UrlGenerator
     protected \Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator $categoryUrlRewriteGenerator;
     protected \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository;
     protected \Psr\Log\LoggerInterface $logger;
-    protected \Magento\Framework\App\RequestInterface $request;
 
     public function __construct(
         \Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator $categoryUrlRewriteGenerator,
         \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
         \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\App\RequestInterface $request
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->urlPersist = $urlPersist;
         $this->storeManager = $storeManager;
         $this->categoryUrlRewriteGenerator = $categoryUrlRewriteGenerator;
         $this->categoryRepository = $categoryRepository;
         $this->logger = $logger;
-        $this->request = $request;
     }
 
     /**

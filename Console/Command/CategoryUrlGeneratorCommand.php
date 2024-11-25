@@ -6,7 +6,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 {
     public const CATEGORY_ID_OPTION = 'category_id';
     public const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
-    public const STORE_IDS = 'store_ids';
+    public const STORE = 'store';
 
     protected \Magento\Framework\App\State $state;
     protected \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory;
@@ -46,10 +46,10 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
                 "Use category subcategories"
             ),
             new \Symfony\Component\Console\Input\InputOption(
-                self::STORE_IDS,
+                self::STORE,
                 "-s",
-                \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
-                "Regenerate URL rewrites for specific store IDs. Example -s 1,2,3"
+                \Symfony\Component\Console\Input\InputOption::VALUE_IS_ARRAY | \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Regenerate URL rewrites for specific store IDs. Usage: --store=1 --store=2 --store=3"
             )
         ]);
 
@@ -83,7 +83,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
             $output->writeln(sprintf("Category with ID %s does not exists.", $categoryId));
             $output->writeln("Finish.");
 
-            return \Symfony\Component\Console\Command\Command::FAILURE;
+            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
         }
 
         $storeIds = $this->getStoreIds($input);
@@ -95,18 +95,12 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 
         $output->writeln("Finish.");
 
-        return \Symfony\Component\Console\Command\Command::SUCCESS;
+        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
 
     protected function getStoreIds(\Symfony\Component\Console\Input\InputInterface $input)
     {
-        $storeIds = $input->getOption(self::STORE_IDS);
-
-        if (!$storeIds) {
-            return null;
-        }
-
-        return explode(',', $storeIds);
+        return ($storeIds = $input->getOption(self::STORE)) ? $storeIds : null;
     }
 
     protected function isWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input): bool

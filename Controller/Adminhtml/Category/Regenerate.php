@@ -24,10 +24,11 @@ class Regenerate extends \Magento\Backend\App\Action
     {
         $categoryId = (int)$this->_request->getParam('category_id');
         $withSubcategories = (bool)$this->_request->getParam('with_subcategories');
-        $storeId = [$this->_request->getParam('store_id')] ?? null;
+        $storeId = $this->_request->getParam('store_id');
+        $selectedStores = $storeId ? [$storeId] : null;
 
         try {
-            $this->categoryUrlGenerator->regenerate($categoryId, $withSubcategories, $storeId);
+            $this->categoryUrlGenerator->regenerate($categoryId, $withSubcategories, $selectedStores);
             $this->messageManager->addSuccessMessage(__('URLs were regenerated successfully'));
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());

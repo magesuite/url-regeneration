@@ -88,7 +88,7 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(2, $this->findAllCategoryUrls($categoryId));
 
         $this->deleteAllUrls($categoryId);
-        $this->urlRegenerator->regenerate(3, false, [$firstStoreId]);
+        $this->urlRegenerator->regenerate($categoryId, false, [$firstStoreId]);
 
         $result = $this->findAllCategoryUrls($categoryId);
         $this->assertCount(1, $result);
