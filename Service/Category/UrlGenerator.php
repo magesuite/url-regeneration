@@ -121,6 +121,6 @@ class UrlGenerator
 
     protected function isCategoryInStore(\Magento\Catalog\Api\Data\CategoryInterface $category, \Magento\Store\Api\Data\StoreInterface $store): bool
     {
-        return in_array($store->getRootCategoryId(), $category->getPathIds());
+        return in_array($store->getRootCategoryId(), $category->getPathIds()) && $category->getId() != $store->getRootCategoryId();
     }
 }

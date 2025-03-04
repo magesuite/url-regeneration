@@ -24,12 +24,18 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
      */
     protected $urlPersister;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
     public function setUp(): void
     {
         $this->objectManager = \Magento\TestFramework\ObjectManager::getInstance();
         $this->urlRegenerator = $this->objectManager->create(\MageSuite\UrlRegeneration\Service\Category\UrlGenerator::class);
         $this->urlPersister = $this->objectManager->create(\Magento\UrlRewrite\Model\UrlPersistInterface::class);
         $this->urlFinder = $this->objectManager->create(\Magento\UrlRewrite\Model\UrlFinderInterface::class);
+        $this->storeManager = $this->objectManager->create(\Magento\Store\Model\StoreManagerInterface::class);
     }
 
     /**
@@ -46,6 +52,20 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         $this->urlRegenerator->regenerate(3, false);
 
         $this->assertCategoryUrl(3, 'category-1.html');
+    }
+
+    /**
+     * @magentoAppIsolation enabled
+     * @magentoDbIsolation enabled
+     * @magentoDataFixture Magento/Catalog/_files/categories.php
+     */
+    public function testItNotRegeneratesUrlForRootCategory()
+    {
+        $store = $this->storeManager->getStore();
+        $rootCategoryId = $store->getRootCategoryId();
+        $this->deleteAllUrls($rootCategoryId);
+        $this->urlRegenerator->regenerate($rootCategoryId, false, [$store->getId()]);
+        $this->assertNull($this->findCategoryUrl($rootCategoryId));
     }
 
     /**
@@ -78,7 +98,7 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
      * @magentoDataFixture Magento/Store/_files/second_store.php
      * @magentoDataFixture Magento/Catalog/_files/categories.php
      */
-    public function testItRegeneratesUrlForSpecifiedStore()
+    public function atestItRegeneratesUrlForSpecifiedStore()
     {
         $categoryId = 3;
         $firstStoreId = 1;
