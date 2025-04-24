@@ -73,10 +73,13 @@ class UrlGenerator
             return;
         }
 
-        $newUrls = $this->categoryUrlRewriteGenerator->generate($category);
+        $rewrites = $this->categoryUrlRewriteGenerator->generate($category);
+        $rewrites = array_filter($rewrites, function ($rewrite) {
+            return !empty($rewrite->getRequestPath());
+        });
 
         try {
-            $this->urlPersist->replace($newUrls);
+            $this->urlPersist->replace($rewrites);
         } catch (\Exception $e) {
             $this->logger->error('Exception during regenerating url rewrites: ' . $e->getMessage(), $e->getTrace());
         }
