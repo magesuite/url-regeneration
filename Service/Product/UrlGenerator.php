@@ -1,49 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MageSuite\UrlRegeneration\Service\Product;
 
 class UrlGenerator
 {
-    /**
-     * @var \Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator
-     */
-    protected $productUrlRewriteGenerator;
-
-    /**
-     * @var \Magento\UrlRewrite\Model\UrlPersistInterface
-     */
-    protected $urlPersist;
-
-    /**
-     * @var \Magento\Catalog\Model\ResourceModel\Product\Collection
-     */
-    protected $collectionFactory;
-
-    /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
-     * @var \Magento\Framework\App\ResourceConnection
-     */
-    protected $resourceModel;
-
     public function __construct(
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory,
-        \Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator $productUrlRewriteGenerator,
-        \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\App\ResourceConnection $resourceModel
+        protected \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory,
+        protected \Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator $productUrlRewriteGenerator,
+        protected \Magento\UrlRewrite\Model\UrlPersistInterface $urlPersist,
+        protected \Magento\Store\Model\StoreManagerInterface $storeManager,
+        protected \Magento\Framework\App\ResourceConnection $resourceModel
     ) {
-        $this->collectionFactory = $collectionFactory;
-        $this->productUrlRewriteGenerator = $productUrlRewriteGenerator;
-        $this->urlPersist = $urlPersist;
-        $this->storeManager = $storeManager;
-        $this->resourceModel = $resourceModel;
     }
 
-    public function regenerate($productIds = [])
+    public function regenerate(array $productIds = []): void
     {
         $stores = $this->storeManager->getStores(false);
 
@@ -52,7 +24,7 @@ class UrlGenerator
         }
     }
 
-    public function regenerateMissing()
+    public function regenerateMissing(): void
     {
         $stores = $this->storeManager->getStores(false);
 
@@ -62,11 +34,7 @@ class UrlGenerator
         }
     }
 
-    /**
-     * @param \Magento\Store\Model\Store $store
-     * @return array $productIds
-     */
-    public function getMissingProductsIds($store)
+    public function getMissingProductsIds(\Magento\Store\Model\Store $store): array
     {
         $productTable = $this->resourceModel->getTableName('catalog_product_entity');
         $urlRewriteTable = $this->resourceModel->getTableName('url_rewrite');
@@ -74,7 +42,7 @@ class UrlGenerator
 
         $connection = $this->resourceModel->getConnection();
         $joinUrlRewriteCondition = $connection->quoteInto(
-            "p.entity_id = u.entity_id AND u.entity_type = 'product' AND u.`store_id` = ?",
+            'p.entity_id = u.entity_id AND u.entity_type = \'product\' AND u.store_id = ? AND u.redirect_type = 0',
             (int)$store->getId()
         );
 
@@ -83,17 +51,13 @@ class UrlGenerator
             ->distinct()
             ->from(['p' => $productTable], 'entity_id')
             ->joinLeft(['u' => $urlRewriteTable], $joinUrlRewriteCondition)
-            ->joinLeft(['r' => $productRelationTable], "p.entity_id = r.child_id")
+            ->joinLeft(['r' => $productRelationTable], 'p.entity_id = r.child_id')
             ->where('u.`url_rewrite_id` IS NULL AND r.`parent_id` IS NULL');
 
         return $this->resourceModel->getConnection()->fetchCol($dbSelect);
     }
 
-    /**
-     * @param \Magento\Store\Model\Store $store
-     * @param array $productIds
-     */
-    protected function regenerateStoreUrls($store, $productIds = [])
+    protected function regenerateStoreUrls(\Magento\Store\Model\Store $store, array $productIds = []): void
     {
         $collection = $this->collectionFactory->create();
 
