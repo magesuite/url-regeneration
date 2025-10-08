@@ -2,54 +2,29 @@
 
 namespace MageSuite\UrlRegeneration\Console\Command;
 
-/**
- * Class CategoryUrlGeneratorCommand
- * @package MageSuite\UrlRegeneration\Console\Command
- */
 class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Command
 {
+    public const CATEGORY_ID_OPTION = 'category_id';
+    public const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
 
-    const CATEGORY_ID_OPTION = 'category_id';
-    const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
+    protected \Magento\Framework\App\State $state;
+    protected \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory;
+    protected \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory;
 
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $state;
-
-    /**
-     * @var \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory
-     */
-    protected $categoryCollectionFactory;
-
-    /**
-     * @var \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory
-     */
-    protected $urlGeneratorFactory;
-
-    /**
-     * CategoryUrlGeneratorCommand constructor.
-     * @param \Magento\Framework\App\State $state
-     * @param \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory
-     * @param \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory
-     * @param null $name
-     */
     public function __construct(
         \Magento\Framework\App\State $state,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory,
         \MageSuite\UrlRegeneration\Service\Category\UrlGeneratorFactory $urlGeneratorFactory,
-        $name = null
+        ?string $name = null
     ) {
+        parent::__construct($name);
+
         $this->state = $state;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
-        parent::__construct($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("catalog:category:url-regeneration");
         $this->setDescription(
@@ -70,18 +45,12 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
                 "Use category subcategories"
             )
         ]);
+
         parent::configure();
     }
 
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return bool|int|null
-     */
-    protected function execute(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
+    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output): int
+    {
         try {
             $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -102,12 +71,12 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
         if ($categoryId && $this->validateCategoryId($categoryId, $categoryIds)) {
             $categoryIds = [];
             $categoryIds[] = $categoryId;
-            $withSubcategories = $this->prapreWithSubcategories($input);
+            $withSubcategories = $this->isWithSubcategories($input);
         } elseif ($categoryId && !$this->validateCategoryId($categoryId, $categoryIds)) {
             $output->writeln(sprintf("Category with ID %s does not exists.", $categoryId));
             $output->writeln("Finish.");
 
-            return false;
+            return \Symfony\Component\Console\Command\Command::FAILURE;
         }
 
         foreach ($categoryIds as $categoryId) {
@@ -117,14 +86,10 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 
         $output->writeln("Finish.");
 
-        return true;
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 
-    /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @return bool
-     */
-    protected function prapreWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input)
+    protected function isWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input): bool
     {
         $withSubcategoriesOption = $input->getOption(self::WITH_SUBCATEGORIES_OPTION);
         if (!$withSubcategoriesOption) {
@@ -134,10 +99,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
         return true;
     }
 
-    /**
-     * @return array
-     */
-    protected function getCategoryIds()
+    protected function getCategoryIds(): array
     {
         /** @var array $result */
         $result = [];
@@ -151,12 +113,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
         return $result;
     }
 
-    /**
-     * @param int $categoryId
-     * @param array $categoryIds
-     * @return bool
-     */
-    protected function validateCategoryId(int $categoryId, array $categoryIds)
+    protected function validateCategoryId(int $categoryId, array $categoryIds): bool
     {
         return in_array($categoryId, $categoryIds);
     }

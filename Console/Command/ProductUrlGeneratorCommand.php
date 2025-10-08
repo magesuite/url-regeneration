@@ -2,45 +2,28 @@
 
 namespace MageSuite\UrlRegeneration\Console\Command;
 
-/**
- * Class ProductUrlGeneratorCommand
- * @package MageSuite\UrlRegeneration\Console\Command
- */
 class ProductUrlGeneratorCommand extends \Symfony\Component\Console\Command\Command
 {
+    public const PRODUCT_IDS_OPTION = 'product_ids';
 
-    const PRODUCT_IDS_OPTION = 'product_ids';
+    protected \Magento\Framework\App\State $state;
+    protected \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory;
 
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $state;
-
-    /**
-     * @var \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory
-     */
-    protected $urlGeneratorFactory;
-
-    /**
-     * ProductUrlGeneratorCommand constructor.
-     * @param \Magento\Framework\App\State $state
-     * @param \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory
-     * @param null $name
-     */
     public function __construct(
         \Magento\Framework\App\State $state,
         \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
-        $name = null
+        ?string $name = null
     ) {
+        parent::__construct($name);
+
         $this->state = $state;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
-        parent::__construct($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("catalog:product:url-regeneration");
         $this->setDescription("Regenerates URL rewrites for all products. If you need to regenerate one or more you can pass -p parameter. For example -p 1,2,3");
@@ -52,16 +35,12 @@ class ProductUrlGeneratorCommand extends \Symfony\Component\Console\Command\Comm
                 "Regenerate URL rewrites for product ids array"
             )
         ]);
+
         parent::configure();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
+    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output): int
+    {
         try {
             $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -75,19 +54,21 @@ class ProductUrlGeneratorCommand extends \Symfony\Component\Console\Command\Comm
         $urlGenerator->regenerate($this->prepareProductIds($input));
 
         $output->writeln("Finish.");
+
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @return array
      */
-    protected function prepareProductIds(\Symfony\Component\Console\Input\InputInterface $input)
+    protected function prepareProductIds(\Symfony\Component\Console\Input\InputInterface $input): array
     {
         $productIdsOption = $input->getOption(self::PRODUCT_IDS_OPTION);
         if (!$productIdsOption) {
             return [];
         }
 
-        return explode(",", $productIdsOption);
+        return explode(',', $productIdsOption);
     }
 }

@@ -2,53 +2,32 @@
 
 namespace MageSuite\UrlRegeneration\Console\Command;
 
-/**
- * @package MageSuite\UrlRegeneration\Console\Command
- */
 class MissingProductUrlGeneratorCommand extends \Symfony\Component\Console\Command\Command
 {
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $state;
+    protected \Magento\Framework\App\State $state;
+    protected \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory;
 
-    /**
-     * @var \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory
-     */
-    protected $urlGeneratorFactory;
-
-    /**
-     * @param \Magento\Framework\App\State $state
-     * @param \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory
-     * @param null $name
-     */
     public function __construct(
         \Magento\Framework\App\State $state,
         \MageSuite\UrlRegeneration\Service\Product\UrlGeneratorFactory $urlGeneratorFactory,
-        $name = null
+        ?string $name = null
     ) {
+        parent::__construct($name);
+
         $this->state = $state;
         $this->urlGeneratorFactory = $urlGeneratorFactory;
-        parent::__construct($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("catalog:product:missing-url-generation");
         $this->setDescription("Generates missing URL rewrites for products.");
+
         parent::configure();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
+    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output): int
+    {
         try {
             $this->state->getAreaCode();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
@@ -62,5 +41,7 @@ class MissingProductUrlGeneratorCommand extends \Symfony\Component\Console\Comma
         $urlGenerator->regenerateMissing();
 
         $output->writeln("Finish.");
+
+        return \Symfony\Component\Console\Command\Command::SUCCESS;
     }
 }
