@@ -5,7 +5,7 @@ namespace MageSuite\UrlRegeneration\Block\Adminhtml\Category\Edit;
 
 class RegenerateUrl extends \Magento\Catalog\Block\Adminhtml\Category\AbstractCategory implements \Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface
 {
-    public function getButtonData(): array
+    public function getButtonData()
     {
         return [
             'label' => __('Regenerate URLs'),

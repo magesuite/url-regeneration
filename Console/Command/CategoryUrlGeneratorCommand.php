@@ -30,7 +30,8 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
         $this->setName("catalog:category:url-regeneration");
         $this->setDescription(
             "Regenerates URL rewrites for all categories, to use it for specific category use -c parameter.
-            To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1"
+            To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1.
+            To regenerate all categories for specific store use -s 1 parameter. Example -s 1 for store with ID = 1"
         );
         $this->setDefinition([
             new \Symfony\Component\Console\Input\InputOption(
