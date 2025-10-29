@@ -6,6 +6,7 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
 {
     public const CATEGORY_ID_OPTION = 'category_id';
     public const WITH_SUBCATEGORIES_OPTION = 'with_subcategories';
+    public const STORE = 'store';
 
     protected \Magento\Framework\App\State $state;
     protected \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryCollectionFactory;
@@ -29,7 +30,8 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
         $this->setName("catalog:category:url-regeneration");
         $this->setDescription(
             "Regenerates URL rewrites for all categories, to use it for specific category use -c parameter.
-            To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1"
+            To regenerate single category with all subcategories specify category id and use -w 1 parameter. Example -c 1 -w 1.
+            To regenerate all categories for specific store use -s 1 parameter. Example -s 1 for store with ID = 1"
         );
         $this->setDefinition([
             new \Symfony\Component\Console\Input\InputOption(
@@ -43,6 +45,12 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
                 "-w",
                 \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
                 "Use category subcategories"
+            ),
+            new \Symfony\Component\Console\Input\InputOption(
+                self::STORE,
+                "-s",
+                \Symfony\Component\Console\Input\InputOption::VALUE_IS_ARRAY | \Symfony\Component\Console\Input\InputOption::VALUE_OPTIONAL,
+                "Regenerate URL rewrites for specific store IDs. Usage: --store=1 --store=2 --store=3"
             )
         ]);
 
@@ -76,17 +84,24 @@ class CategoryUrlGeneratorCommand extends \Symfony\Component\Console\Command\Com
             $output->writeln(sprintf("Category with ID %s does not exists.", $categoryId));
             $output->writeln("Finish.");
 
-            return \Symfony\Component\Console\Command\Command::FAILURE;
+            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
         }
+
+        $storeIds = $this->getStoreIds($input);
 
         foreach ($categoryIds as $categoryId) {
             $output->writeln(sprintf("Processing URL rewrite for category %s", $categoryId));
-            $urlGenerator->regenerate((int)$categoryId, $withSubcategories);
+            $urlGenerator->regenerate((int)$categoryId, $withSubcategories, $storeIds);
         }
 
         $output->writeln("Finish.");
 
-        return \Symfony\Component\Console\Command\Command::SUCCESS;
+        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
+    }
+
+    protected function getStoreIds(\Symfony\Component\Console\Input\InputInterface $input)
+    {
+        return ($storeIds = $input->getOption(self::STORE)) ? $storeIds : null;
     }
 
     protected function isWithSubcategories(\Symfony\Component\Console\Input\InputInterface $input): bool

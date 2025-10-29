@@ -28,15 +28,27 @@ class UrlGenerator
 
     /**
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function regenerate(int $categoryId, bool $withSubcategories = false): void
+    public function regenerate(int $categoryId, bool $withSubcategories = false, ?array $storeIds = null): void
     {
-        $stores = $this->storeManager->getStores();
+        $stores = $this->getStores($storeIds);
 
         foreach ($stores as $store) {
             $this->deleteOldUrls($store, $categoryId, $withSubcategories);
             $this->regenerateStoreUrls($store, $categoryId, $withSubcategories);
         }
+    }
+
+    public function getStores(?array $storeIds = null): array
+    {
+        $stores = $this->storeManager->getStores();
+
+        if ($storeIds !== null) {
+            $stores = array_intersect_key($stores, array_flip($storeIds));
+        }
+
+        return $stores;
     }
 
     /**
@@ -109,6 +121,6 @@ class UrlGenerator
 
     protected function isCategoryInStore(\Magento\Catalog\Api\Data\CategoryInterface $category, \Magento\Store\Api\Data\StoreInterface $store): bool
     {
-        return in_array($store->getRootCategoryId(), $category->getPathIds());
+        return in_array($store->getRootCategoryId(), $category->getPathIds()) && $category->getId() != $store->getRootCategoryId();
     }
 }

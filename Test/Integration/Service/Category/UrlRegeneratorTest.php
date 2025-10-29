@@ -24,12 +24,18 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
      */
     protected $urlPersister;
 
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
     public function setUp(): void
     {
         $this->objectManager = \Magento\TestFramework\ObjectManager::getInstance();
         $this->urlRegenerator = $this->objectManager->create(\MageSuite\UrlRegeneration\Service\Category\UrlGenerator::class);
         $this->urlPersister = $this->objectManager->create(\Magento\UrlRewrite\Model\UrlPersistInterface::class);
         $this->urlFinder = $this->objectManager->create(\Magento\UrlRewrite\Model\UrlFinderInterface::class);
+        $this->storeManager = $this->objectManager->create(\Magento\Store\Model\StoreManagerInterface::class);
     }
 
     /**
@@ -46,6 +52,20 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         $this->urlRegenerator->regenerate(3, false);
 
         $this->assertCategoryUrl(3, 'category-1.html');
+    }
+
+    /**
+     * @magentoAppIsolation enabled
+     * @magentoDbIsolation enabled
+     * @magentoDataFixture Magento/Catalog/_files/categories.php
+     */
+    public function testItNotRegeneratesUrlForRootCategory()
+    {
+        $store = $this->storeManager->getStore();
+        $rootCategoryId = $store->getRootCategoryId();
+        $this->deleteAllUrls($rootCategoryId);
+        $this->urlRegenerator->regenerate($rootCategoryId, false, [$store->getId()]);
+        $this->assertNull($this->findCategoryUrl($rootCategoryId));
     }
 
     /**
@@ -73,9 +93,31 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param $product
+     * @magentoAppIsolation enabled
+     * @magentoDbIsolation disabled
+     * @magentoDataFixture Magento/Store/_files/second_store.php
+     * @magentoDataFixture Magento/Catalog/_files/categories.php
      */
-    protected function deleteAllUrls($categoryId)
+    public function atestItRegeneratesUrlForSpecifiedStore()
+    {
+        $categoryId = 3;
+        $firstStoreId = 1;
+
+        $this->urlRegenerator->regenerate($categoryId);
+
+        $this->assertCount(2, $this->findAllCategoryUrls($categoryId));
+
+        $this->deleteAllUrls($categoryId);
+        $this->urlRegenerator->regenerate($categoryId, false, [$firstStoreId]);
+
+        $result = $this->findAllCategoryUrls($categoryId);
+        $this->assertCount(1, $result);
+
+        $result = current($result);
+        $this->assertEquals($firstStoreId, $result->getStoreId());
+    }
+
+    protected function deleteAllUrls($categoryId): void
     {
         $this->urlPersister->deleteByData([
             \Magento\UrlRewrite\Service\V1\Data\UrlRewrite::ENTITY_ID => $categoryId,
@@ -83,11 +125,7 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @param $product
-     * @return \Magento\UrlRewrite\Service\V1\Data\UrlRewrite|null
-     */
-    protected function findCategoryUrl($categoryId)
+    protected function findCategoryUrl($categoryId): ?\Magento\UrlRewrite\Service\V1\Data\UrlRewrite
     {
         return $this->urlFinder->findOneByData([
             \Magento\UrlRewrite\Service\V1\Data\UrlRewrite::ENTITY_ID => $categoryId,
@@ -95,10 +133,15 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    /**
-     * @param $categoryId
-     */
-    protected function assertCategoryUrl($categoryId, $expectedUrl)
+    protected function findAllCategoryUrls($categoryId): array
+    {
+        return $this->urlFinder->findAllByData([
+            \Magento\UrlRewrite\Service\V1\Data\UrlRewrite::ENTITY_ID => $categoryId,
+            \Magento\UrlRewrite\Service\V1\Data\UrlRewrite::ENTITY_TYPE => \Magento\CatalogUrlRewrite\Model\CategoryUrlRewriteGenerator::ENTITY_TYPE
+        ]);
+    }
+
+    protected function assertCategoryUrl(int $categoryId, string $expectedUrl): void
     {
         $result = $this->findCategoryUrl($categoryId);
 
@@ -106,10 +149,7 @@ class UrlRegeneratorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expectedUrl, $result->getRequestPath());
     }
 
-    /**
-     * @param $categoryId
-     */
-    protected function assertCategoryUrlIsNull($categoryId)
+    protected function assertCategoryUrlIsNull(int $categoryId): void
     {
         $this->assertNull($this->findCategoryUrl($categoryId));
     }
